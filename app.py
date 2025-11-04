@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 import io
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+import numpy as np
+from sklearn import preprocessing
 
 # Ruta del dataset (mismo directorio que este archivo)
 DATA_PATH = Path(__file__).parent / "Titanic-Dataset.csv"
@@ -35,36 +39,39 @@ def ejercicio_1():
             
             # para variables categóricas (Embarked) usar la moda
             df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+            # Separar features (X) y variable objetivo (y)
+            y = df['Survived'].values  # Variable dependiente
+            X = df.drop(['Survived', 'PassengerId'], axis=1).values  # Variables independientes
+
+            # Primero usamos LabelEncoder para convertir categorías a números
+            
+            # Codificar la columna 'Sex' (está en la posición 1 de X)
+            le_sex = preprocessing.LabelEncoder()
+            X[:, 1] = le_sex.fit_transform(X[:, 1])
+            
+            # Codificar la columna 'Embarked' (está en la posición 6 de X)
+            le_embarked = preprocessing.LabelEncoder()
+            X[:, 6] = le_embarked.fit_transform(X[:, 6])
+
+            # Luego usamos OneHotEncoder solo para la columna 'Sex'
+            ct = ColumnTransformer([
+                ('one_hot_encoder', OneHotEncoder(categories='auto'), [1])
+            ], remainder='passthrough')
+            
+            X = np.array(ct.fit_transform(X), dtype=np.float64)
+            
+            # Convertir de nuevo a DataFrame para visualización
+            columns = ['Sex_0', 'Sex_1'] + ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
+            df = pd.DataFrame(X, columns=columns)
+            df.insert(0, 'Survived', y)  # Añadir Survived al inicio
+
         except Exception as e:
             st.exception(e)
             return
 
     st.subheader("Vista previa del dataset")
     st.dataframe(df.head(100))
-
-    st.markdown("**Dimensiones:**")
-    st.write(f"Filas: {df.shape[0]} — Columnas: {df.shape[1]}")
-
-    st.markdown("**Resumen de columnas y tipos**")
-    st.write(df.dtypes)
-
-    st.markdown("**Información (df.info())**")
-    buf = io.StringIO()
-    df.info(buf=buf)
-    s = buf.getvalue()
-    st.text(s)
-
-    st.markdown("**Estadísticas descriptivas (solo numéricas)**")
-    st.write(df.describe())
-
-    if st.checkbox("Mostrar dataset completo (puede ser lento)"):
-        st.dataframe(df)
-
-    st.markdown("---")
-    st.markdown("Puedes descargar una muestra de 100 filas:")
-    csv_sample = df.head(100).to_csv(index=False).encode('utf-8')
-    st.download_button("Descargar muestra CSV (100 filas)", data=csv_sample, file_name="titanic_sample.csv", mime='text/csv')
-
 
 def ejercicio_2():
     st.header("Ejercicio 2 — Exploración (placeholder)")
