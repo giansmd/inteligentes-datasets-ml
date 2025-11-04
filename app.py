@@ -29,6 +29,10 @@ def ejercicio_1():
     with st.spinner("Cargando datos..."):
         try:
             df = load_data(DATA_PATH)
+
+            st.subheader("Vista inicial del dataset")
+            st.dataframe(df.head(50))
+
             # paso. eliminar columnas innecesarias
             df.drop(columns=['Name', 'Ticket', 'Cabin'], inplace=True)
             
@@ -60,18 +64,33 @@ def ejercicio_1():
             ], remainder='passthrough')
             
             X = np.array(ct.fit_transform(X), dtype=np.float64)
+
+            # Escalado de variables numéricas (Age y Fare están en las posiciones 3 y 6)
+            from sklearn.preprocessing import StandardScaler
+            sc_X = StandardScaler()
+            # Escalamos solo Age y Fare
+            X[:, [3, 6]] = sc_X.fit_transform(X[:, [3, 6]])
             
             # Convertir de nuevo a DataFrame para visualización
             columns = ['Sex_0', 'Sex_1'] + ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
             df = pd.DataFrame(X, columns=columns)
             df.insert(0, 'Survived', y)  # Añadir Survived al inicio
 
+            st.subheader("Vista previa del dataset después del preprocesamiento")
+            st.markdown("""
+            Se han realizado las siguientes transformaciones:
+            1. Codificación de variables categóricas:
+               - Sex: OneHotEncoder (Sex_0, Sex_1)
+               - Embarked: LabelEncoder (0, 1, 2)
+            2. Escalado de variables numéricas con StandardScaler:
+               - Age: Media 0 y desviación estándar 1
+               - Fare: Media 0 y desviación estándar 1
+            """)
+            st.dataframe(df.head(100))
+
         except Exception as e:
             st.exception(e)
             return
-
-    st.subheader("Vista previa del dataset")
-    st.dataframe(df.head(100))
 
 def ejercicio_2():
     st.header("Ejercicio 2 — Exploración (placeholder)")
