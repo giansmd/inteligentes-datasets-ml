@@ -163,6 +163,65 @@ def ejercicio_2():
             st.subheader("Vista inicial del dataset de estudiantes")
             st.dataframe(df_students.head(50))
 
+            # 1. Análisis y eliminación de duplicados
+            st.subheader("1. Análisis de duplicados")
+            num_duplicados = df_students.duplicated().sum()
+            st.write(f"Número de filas duplicadas encontradas: {num_duplicados}")
+            
+            if num_duplicados > 0:
+                df_students = df_students.drop_duplicates()
+                st.success(f"Se eliminaron {num_duplicados} filas duplicadas")
+
+            # 2. Análisis de valores inconsistentes
+            st.subheader("2. Análisis de valores inconsistentes")
+
+            # 2.1 Verificar rangos de edad (deberían ser razonables para estudiantes)
+            edad_invalida = df_students[~df_students['age'].between(13, 25)].shape[0]
+            st.write(f"Registros con edad fuera de rango (13-25 años): {edad_invalida}")
+            if edad_invalida > 0:
+                df_students = df_students[df_students['age'].between(13, 25)]
+
+            # 2.2 Verificar calificaciones (G1, G2, G3 deberían estar entre 0 y 20)
+            notas_invalidas = df_students[
+                ~(df_students['G1'].between(0, 20) & 
+                  df_students['G2'].between(0, 20) & 
+                  df_students['G3'].between(0, 20))
+            ].shape[0]
+            st.write(f"Registros con calificaciones fuera de rango (0-20): {notas_invalidas}")
+            if notas_invalidas > 0:
+                df_students = df_students[
+                    df_students['G1'].between(0, 20) & 
+                    df_students['G2'].between(0, 20) & 
+                    df_students['G3'].between(0, 20)
+                ]
+
+            # 2.3 Verificar valores categóricos
+            st.write("\nValores únicos en columnas categóricas:")
+            categorical_cols = ['school', 'sex', 'address', 'famsize', 'Pstatus', 
+                              'Mjob', 'Fjob', 'reason', 'guardian', 'schoolsup', 
+                              'famsup', 'paid', 'activities', 'nursery', 'higher', 
+                              'internet', 'romantic']
+            
+            for col in categorical_cols:
+                unique_values = df_students[col].unique()
+                st.write(f"{col}: {sorted(unique_values)}")
+
+            # 2.4 Verificar valores nulos
+            st.write("\nValores nulos por columna:")
+            null_counts = df_students.isnull().sum()
+            if null_counts.sum() > 0:
+                st.write(null_counts[null_counts > 0])
+            else:
+                st.write("No se encontraron valores nulos en el dataset")
+
+            # Mostrar dimensiones finales del dataset
+            st.subheader("Dimensiones finales del dataset")
+            st.write(f"Forma del dataset después de la limpieza: {df_students.shape}")
+            
+            # Vista previa del dataset limpio
+            st.subheader("Vista previa del dataset limpio")
+            st.dataframe(df_students.head(50))
+
         except Exception as e:
             st.error(f"Error al cargar los datos: {str(e)}")
 
