@@ -140,17 +140,35 @@ def ejercicio_1():
 
 
 def ejercicio_2():
-    st.header("Ejercicio 2 — Exploración (placeholder)")
-    st.markdown(
-        "En esta página añadiremos visualizaciones y análisis exploratorio: conteos por clase, sobrevivientes por sexo/edad, gráficos, etc."
-    )
-    st.info(
-        "Pendiente: implementar visualizaciones con Altair/Matplotlib/Seaborn y controles interactivos."
-    )
+    st.header("Ejercicio 2 — Student Performance Dataset")
+
+    # Ruta del dataset de estudiantes
+    STUDENT_DATA_PATH = Path(__file__).parent / "student-mat.csv"
+
+    if not STUDENT_DATA_PATH.exists():
+        st.error(f"No se encuentra el archivo de datos en: {STUDENT_DATA_PATH}")
+        st.write(
+            "Asegúrate de colocar `student-mat.csv` en la misma carpeta que `app.py`."
+        )
+        return
+
+    with st.spinner("Cargando datos..."):
+        try:
+            # Leer el dataset con pandas
+            df_students = pd.read_csv(STUDENT_DATA_PATH, sep=",")
+
+            # columnas:
+            # school,sex,age,address,famsize,Pstatus,Medu,Fedu,Mjob,Fjob,reason,guardian,traveltime,studytime,failures,schoolsup,famsup,paid,activities,nursery,higher,internet,romantic,famrel,freetime,goout,Dalc,Walc,health,absences,G1,G2,G3
+            
+            st.subheader("Vista inicial del dataset de estudiantes")
+            st.dataframe(df_students.head(50))
+
+        except Exception as e:
+            st.error(f"Error al cargar los datos: {str(e)}")
 
 
 def ejercicio_3():
-    st.header("Ejercicio 3 — Modelado (placeholder)")
+    st.header("Ejercicio 3 — ")
     st.markdown(
         "En esta página añadiremos un ejemplo de modelo (p. ej. clasificación con sklearn), selección de características y evaluación."
     )
@@ -160,22 +178,22 @@ def ejercicio_3():
 
 
 def main():
-    st.title("Proyecto: Titanic — 3 ejercicios")
+    st.title("Proyecto de Datasets Inteligentes con ML")
 
     page = st.sidebar.selectbox(
         "Selecciona una página:",
         [
-            "Ejercicio 1 - Lectura",
-            "Ejercicio 2 - Exploración",
-            "Ejercicio 3 - Modelado",
+            "Ejercicio 1",
+            "Ejercicio 2",
+            "Ejercicio 3",
         ],
     )
 
-    if page == "Ejercicio 1 - Lectura":
+    if page == "Ejercicio 1":
         ejercicio_1()
-    elif page == "Ejercicio 2 - Exploración":
+    elif page == "Ejercicio 2":
         ejercicio_2()
-    else:
+    elif page == "Ejercicio 3":
         ejercicio_3()
 
 
