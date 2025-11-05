@@ -218,9 +218,52 @@ def ejercicio_2():
             st.subheader("Dimensiones finales del dataset")
             st.write(f"Forma del dataset después de la limpieza: {df_students.shape}")
             
-            # Vista previa del dataset limpio
-            st.subheader("Vista previa del dataset limpio")
-            st.dataframe(df_students.head(50))
+            # 3. Codificación de variables categóricas con OneHotEncoder
+            st.subheader("3. Codificación de variables categóricas")
+
+            # Definir las columnas categóricas y numéricas
+            categorical_cols = ['school', 'sex', 'address', 'famsize', 'Pstatus', 
+                                'Mjob', 'Fjob', 'reason', 'guardian', 'schoolsup', 
+                                'famsup', 'paid', 'activities', 'nursery', 'higher', 
+                                'internet', 'romantic']
+
+            # Obtener las columnas numéricas (las que no son categóricas)
+            numeric_cols = df_students.columns.difference(categorical_cols).tolist()
+
+            # Aplicar OneHotEncoder a las columnas categóricas
+            encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+            encoded_data = encoder.fit_transform(df_students[categorical_cols])
+
+            # Obtener los nombres de las características codificadas
+            encoded_feature_names = encoder.get_feature_names_out(categorical_cols)
+
+            # Crear un DataFrame con las características codificadas
+            df_categorical = pd.DataFrame(
+                encoded_data,
+                columns=encoded_feature_names,
+                index=df_students.index
+            )
+
+            # Combinar con las variables numéricas
+            df_encoded = pd.concat([df_students[numeric_cols], df_categorical], axis=1)
+
+            # Mostrar información sobre la codificación
+            st.markdown("""
+            Se ha realizado la codificación One-Hot de las siguientes variables categóricas:
+            - Variables escolares: school, reason
+            - Variables personales: sex, address
+            - Variables familiares: famsize, Pstatus, Mjob, Fjob, guardian
+            - Variables de apoyo: schoolsup, famsup, paid, activities, nursery
+            - Otras variables: higher, internet, romantic
+
+            Las variables numéricas se mantienen sin cambios.
+            """)
+
+            # Vista previa del dataset con variables codificadas
+            st.subheader("Vista previa del dataset con variables codificadas")
+            st.write(f"Dimensiones del dataset codificado: {df_encoded.shape}")
+            st.write("Número de características después de la codificación:", df_encoded.shape[1])
+            st.dataframe(df_encoded.head(50))
 
         except Exception as e:
             st.error(f"Error al cargar los datos: {str(e)}")
