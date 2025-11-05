@@ -3,7 +3,8 @@ import pandas as pd
 from pathlib import Path
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def ejercicio_2():
     st.header("Ejercicio 2 — Student Performance Dataset")
@@ -38,8 +39,6 @@ def ejercicio_2():
             st.dataframe(corr_matrix.style.format("{:.3f}"))
             
             # Visualización con heatmap
-            import seaborn as sns
-            import matplotlib.pyplot as plt
             
             # Crear el heatmap
             fig, ax = plt.subplots(figsize=(8, 6))
@@ -65,7 +64,7 @@ def ejercicio_2():
               un buen rendimiento en evaluaciones previas (G1, G2) suele indicar
               un buen rendimiento en la evaluación final (G3)
             """)
-            
+
             # 1. Análisis y eliminación de duplicados
             st.subheader("1. Análisis de duplicados")
             num_duplicados = df_students.duplicated().sum()
