@@ -1,16 +1,7 @@
 import streamlit as st
 from ejercicio_1 import ejercicio_1
 from ejercicio_2 import ejercicio_2
-
-
-def ejercicio_3():
-    st.header("Ejercicio 3 — ")
-    st.markdown(
-        "En esta página añadiremos un ejemplo de modelo (p. ej. clasificación con sklearn), selección de características y evaluación."
-    )
-    st.info(
-        "Pendiente: implementar pipeline simple con división train/test, entrenamiento y métricas."
-    )
+from ejercicio_3 import ejercicio_3
 
 
 def main():
