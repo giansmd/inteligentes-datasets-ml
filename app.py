@@ -6,6 +6,8 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 # Ruta del dataset (mismo directorio que este archivo)
 DATA_PATH = Path(__file__).parent / "Titanic-Dataset.csv"
@@ -77,7 +79,6 @@ def ejercicio_1():
             X = np.hstack([X[:, 3:], X[:, 0:3]])
 
             # Escalado de variables numéricas (Age y Fare están en las posiciones 3 y 6)
-            from sklearn.preprocessing import StandardScaler
 
             sc_X = StandardScaler()
             # Escalamos solo Age y Fare
@@ -112,7 +113,6 @@ def ejercicio_1():
             st.dataframe(df.head(5))
 
             # División en conjuntos de entrenamiento y prueba
-            from sklearn.model_selection import train_test_split
 
             # Separar features y target
             X = df.drop("Survived", axis=1)
@@ -159,7 +159,7 @@ def ejercicio_2():
 
             # columnas:
             # school,sex,age,address,famsize,Pstatus,Medu,Fedu,Mjob,Fjob,reason,guardian,traveltime,studytime,failures,schoolsup,famsup,paid,activities,nursery,higher,internet,romantic,famrel,freetime,goout,Dalc,Walc,health,absences,G1,G2,G3
-            
+
             st.subheader("Vista inicial del dataset de estudiantes")
             st.dataframe(df_students.head(50))
 
@@ -167,7 +167,7 @@ def ejercicio_2():
             st.subheader("1. Análisis de duplicados")
             num_duplicados = df_students.duplicated().sum()
             st.write(f"Número de filas duplicadas encontradas: {num_duplicados}")
-            
+
             if num_duplicados > 0:
                 df_students = df_students.drop_duplicates()
                 st.success(f"Se eliminaron {num_duplicados} filas duplicadas")
@@ -176,32 +176,51 @@ def ejercicio_2():
             st.subheader("2. Análisis de valores inconsistentes")
 
             # 2.1 Verificar rangos de edad (deberían ser razonables para estudiantes)
-            edad_invalida = df_students[~df_students['age'].between(13, 25)].shape[0]
+            edad_invalida = df_students[~df_students["age"].between(13, 25)].shape[0]
             st.write(f"Registros con edad fuera de rango (13-25 años): {edad_invalida}")
             if edad_invalida > 0:
-                df_students = df_students[df_students['age'].between(13, 25)]
+                df_students = df_students[df_students["age"].between(13, 25)]
 
             # 2.2 Verificar calificaciones (G1, G2, G3 deberían estar entre 0 y 20)
             notas_invalidas = df_students[
-                ~(df_students['G1'].between(0, 20) & 
-                  df_students['G2'].between(0, 20) & 
-                  df_students['G3'].between(0, 20))
+                ~(
+                    df_students["G1"].between(0, 20)
+                    & df_students["G2"].between(0, 20)
+                    & df_students["G3"].between(0, 20)
+                )
             ].shape[0]
-            st.write(f"Registros con calificaciones fuera de rango (0-20): {notas_invalidas}")
+            st.write(
+                f"Registros con calificaciones fuera de rango (0-20): {notas_invalidas}"
+            )
             if notas_invalidas > 0:
                 df_students = df_students[
-                    df_students['G1'].between(0, 20) & 
-                    df_students['G2'].between(0, 20) & 
-                    df_students['G3'].between(0, 20)
+                    df_students["G1"].between(0, 20)
+                    & df_students["G2"].between(0, 20)
+                    & df_students["G3"].between(0, 20)
                 ]
 
             # 2.3 Verificar valores categóricos
             st.write("\nValores únicos en columnas categóricas:")
-            categorical_cols = ['school', 'sex', 'address', 'famsize', 'Pstatus', 
-                              'Mjob', 'Fjob', 'reason', 'guardian', 'schoolsup', 
-                              'famsup', 'paid', 'activities', 'nursery', 'higher', 
-                              'internet', 'romantic']
-            
+            categorical_cols = [
+                "school",
+                "sex",
+                "address",
+                "famsize",
+                "Pstatus",
+                "Mjob",
+                "Fjob",
+                "reason",
+                "guardian",
+                "schoolsup",
+                "famsup",
+                "paid",
+                "activities",
+                "nursery",
+                "higher",
+                "internet",
+                "romantic",
+            ]
+
             for col in categorical_cols:
                 unique_values = df_students[col].unique()
                 st.write(f"{col}: {sorted(unique_values)}")
@@ -217,21 +236,36 @@ def ejercicio_2():
             # Mostrar dimensiones finales del dataset
             st.subheader("Dimensiones finales del dataset")
             st.write(f"Forma del dataset después de la limpieza: {df_students.shape}")
-            
+
             # 3. Codificación de variables categóricas con OneHotEncoder
             st.subheader("3. Codificación de variables categóricas")
 
             # Definir las columnas categóricas y numéricas
-            categorical_cols = ['school', 'sex', 'address', 'famsize', 'Pstatus', 
-                                'Mjob', 'Fjob', 'reason', 'guardian', 'schoolsup', 
-                                'famsup', 'paid', 'activities', 'nursery', 'higher', 
-                                'internet', 'romantic']
+            categorical_cols = [
+                "school",
+                "sex",
+                "address",
+                "famsize",
+                "Pstatus",
+                "Mjob",
+                "Fjob",
+                "reason",
+                "guardian",
+                "schoolsup",
+                "famsup",
+                "paid",
+                "activities",
+                "nursery",
+                "higher",
+                "internet",
+                "romantic",
+            ]
 
             # Obtener las columnas numéricas (las que no son categóricas)
             numeric_cols = df_students.columns.difference(categorical_cols).tolist()
 
             # Aplicar OneHotEncoder a las columnas categóricas
-            encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+            encoder = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
             encoded_data = encoder.fit_transform(df_students[categorical_cols])
 
             # Obtener los nombres de las características codificadas
@@ -239,9 +273,7 @@ def ejercicio_2():
 
             # Crear un DataFrame con las características codificadas
             df_categorical = pd.DataFrame(
-                encoded_data,
-                columns=encoded_feature_names,
-                index=df_students.index
+                encoded_data, columns=encoded_feature_names, index=df_students.index
             )
 
             # Combinar con las variables numéricas
@@ -259,11 +291,86 @@ def ejercicio_2():
             Las variables numéricas se mantienen sin cambios.
             """)
 
-            # Vista previa del dataset con variables codificadas
-            st.subheader("Vista previa del dataset con variables codificadas")
-            st.write(f"Dimensiones del dataset codificado: {df_encoded.shape}")
-            st.write("Número de características después de la codificación:", df_encoded.shape[1])
-            st.dataframe(df_encoded.head(50))
+            # 4. Normalización de variables numéricas seleccionadas
+            st.subheader("4. Normalización de variables numéricas")
+
+            # Definir las columnas a normalizar
+            columns_to_normalize = ["G1", "G2", "absences", "age"]
+
+            # Crear y ajustar el StandardScaler
+            scaler = StandardScaler()
+            df_encoded[columns_to_normalize] = scaler.fit_transform(
+                df_encoded[columns_to_normalize]
+            )
+
+            st.markdown("""
+            Se han normalizado las siguientes variables numéricas usando StandardScaler:
+            - G1 y G2 (notas previas)
+            - absences (número de ausencias)
+            - age (edad del estudiante)
+            
+            La variable G3 no se normaliza ya que será nuestra variable dependiente.
+            
+            Después de la normalización, estas variables tienen:
+            - Media = 0
+            - Desviación estándar = 1
+            """)
+
+            # 5. Separación de características (X) y variable objetivo (y)
+            st.subheader("5. Separación de variables independientes y dependiente")
+
+            # Separar la variable objetivo (G3) del resto de características
+            y = df_encoded["G3"]
+            X = df_encoded.drop("G3", axis=1)
+
+            st.markdown("""
+            Se han separado los datos en:
+            - X: Variables independientes (características)
+            - y: Variable dependiente (G3 - nota final)
+            
+            Las características se han convertido a un array numpy de tipo float64 para
+            asegurar la compatibilidad con los algoritmos de machine learning.
+            """)
+
+            # Mostrar las dimensiones de X e y
+            st.write(f"Dimensiones de X (características): {X.shape}")
+            st.write(f"Dimensiones de y (variable objetivo): {y.shape}")
+
+            # Vista previa de los datos separados
+            st.subheader("Vista previa del dataset final")
+
+            # Crear un DataFrame temporal para visualización
+            df_preview = pd.DataFrame(X, columns=df_encoded.drop("G3", axis=1).columns)
+            df_preview["G3 (target)"] = y
+
+            st.write("\nPrimeros registros del dataset procesado:")
+            st.dataframe(df_preview.head(50))
+
+            # 6. División en conjuntos de entrenamiento y prueba
+            st.subheader("6. División train-test")
+
+            # Realizar la división 80-20
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.20, random_state=42
+            )
+
+            st.markdown("""
+            Se han dividido los datos en:
+            - Conjunto de entrenamiento (80%)
+            - Conjunto de prueba (20%)
+            
+            Se utilizó random_state=42 para asegurar reproducibilidad.
+            """)
+
+            st.markdown(f"""
+            **Conjunto de entrenamiento (80%):**
+            - X_train shape: {X_train.shape}
+            - y_train shape: {y_train.shape}
+            
+            **Conjunto de prueba (20%):**
+            - X_test shape: {X_test.shape}
+            - y_test shape: {y_test.shape}
+            """)
 
         except Exception as e:
             st.error(f"Error al cargar los datos: {str(e)}")
