@@ -26,6 +26,46 @@ def ejercicio_2():
             st.subheader("Vista inicial del dataset de estudiantes")
             st.dataframe(df_students.head(50))
 
+            # Análisis de correlación entre notas
+            st.subheader("Análisis de correlación entre notas")
+            
+            # Crear matriz de correlación para las notas
+            notas_cols = ['G1', 'G2', 'G3']
+            corr_matrix = df_students[notas_cols].corr()
+            
+            # Mostrar la matriz de correlación
+            st.write("Matriz de correlación entre notas:")
+            st.dataframe(corr_matrix.style.format("{:.3f}"))
+            
+            # Visualización con heatmap
+            import seaborn as sns
+            import matplotlib.pyplot as plt
+            
+            # Crear el heatmap
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.heatmap(corr_matrix, 
+                       annot=True, 
+                       cmap='coolwarm', 
+                       vmin=-1, 
+                       vmax=1, 
+                       center=0,
+                       fmt='.3f')
+            plt.title('Correlación entre notas G1, G2 y G3')
+            st.pyplot(fig)
+            
+            # Interpretación de la correlación
+            st.markdown("""
+            **Interpretación de la correlación:**
+            - La correlación va de -1 a 1, donde:
+                - 1 indica una correlación positiva perfecta
+                - -1 indica una correlación negativa perfecta
+                - 0 indica que no hay correlación
+            - Valores cercanos a 1 indican una fuerte correlación positiva
+            - Se espera ver una correlación positiva entre las notas, ya que típicamente
+              un buen rendimiento en evaluaciones previas (G1, G2) suele indicar
+              un buen rendimiento en la evaluación final (G3)
+            """)
+            
             # 1. Análisis y eliminación de duplicados
             st.subheader("1. Análisis de duplicados")
             num_duplicados = df_students.duplicated().sum()
